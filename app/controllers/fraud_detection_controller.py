@@ -47,18 +47,20 @@ def post(text: str) -> JSONResponse:
 
     return show_model(0, "Successfully Get Data", data)
 
-def scan(image) -> JSONResponse:
-    tessData = pytesseract.image_to_data(image)
+def scan(image) :
+    ocr_text = pytesseract.image_to_data(image)
     # convert into dataframe
-    tessList = list(map(lambda x: x.split('\t'), tessData.split('\n')))
-    df = pd.DataFrame(tessList[1:], columns=tessList[0])
+    list_of_text = list(map(lambda x: x.split('\t'), ocr_text.split('\n')))
+    df = pd.DataFrame(list_of_text[1:], columns=list_of_text[0])
     df.dropna(inplace=True)  # drop missing values
     df['text'] = df['text'].apply(cleanText)
 
     # convet data into content
     df_clean = df.query('text != "" ')
     content = " ".join([w for w in df_clean['text']])
+    return predict(content)
 
+def predict(content: str) -> JSONResponse:
     # Ubah setiap baris menjadi array kata-kata
     words_array = []
     lines = content.split()
@@ -126,4 +128,8 @@ def scan(image) -> JSONResponse:
         "total_negatif": total_negatif
     }
 
-    return show_model(0, "Successfully Get Data", {"results": results, "totals": totals})
+    return show_model(0, "Successfully Predict Data",
+                      {
+                          "results": results,
+                          "totals": totals,
+                          "contents": content})

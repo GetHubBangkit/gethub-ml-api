@@ -5,6 +5,7 @@
 /data/sentiment/model.keras
 
 # Ignore __pycache__ folders
+*.pyc
 __pycache__/
 
 # Add other paths to ignore if necessary

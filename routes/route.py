@@ -9,7 +9,7 @@ from starlette.responses import FileResponse
 
 import app.controllers.version_controller as version_controller
 from app.controllers import sentiment_controller, fraud_detection_controller, \
-    scan_card_controller, user_controller, event_controller
+    scan_card_controller, user_controller, event_controller, ktp_controller
 from app.helpers.handler import show_model
 from app.middleware.middleware import check_jwt_token
 import cv2
@@ -21,7 +21,8 @@ class ImageFile(BaseModel):
     file: UploadFile
 
 OUTPUT_FOLDER = "./public/faces"
-UPLOAD_FOLDER = "./public/cards"
+UPLOAD_FOLDER_CARD = "./public/cards"
+UPLOAD_FOLDER = "./public/uploads"
 
 router = APIRouter()
 
@@ -56,7 +57,7 @@ async def post_scan_card(image_file: UploadFile = File(...)):
 
     # Read the image file once
     file_bytes = await image_file.read()
-    image_path = os.path.join(UPLOAD_FOLDER, image_file.filename)
+    image_path = os.path.join(UPLOAD_FOLDER_CARD, image_file.filename)
 
     # Save the uploaded image
     with open(image_path, "wb") as f:
@@ -97,6 +98,10 @@ async def post_scan_card(image_file: UploadFile = File(...)):
     }
     return show_model(0, "Successfully Get Data", data)
 
+@router.post("/api/predict-fraud-project", dependencies=[Depends(check_jwt_token)])
+async def post_fraud_detection(text_data: TextData):
+    return fraud_detection_controller.predict(text_data.text)
+
 @router.post("/api/scan-fraud-project", dependencies=[Depends(check_jwt_token)])
 async def post_scan_fraud_project(image_file: UploadFile = File(...)):
     # GET FACE IMAGE
@@ -115,6 +120,25 @@ async def post_scan_fraud_project(image_file: UploadFile = File(...)):
         f.write(file_bytes)
 
     return fraud_detection_controller.scan(image_path)
+
+@router.post("/api/scan-ktp", dependencies=[Depends(check_jwt_token)])
+async def post_scan_fraud_project(image_file: UploadFile = File(...)):
+    # GET FACE IMAGE
+    if not image_file.filename:
+        return {
+            "error_code": 500,
+            "message": "File Gambar wajib di isi!"
+        }
+
+    # Read the image file once
+    file_bytes = await image_file.read()
+    image_path = os.path.join(UPLOAD_FOLDER, image_file.filename)
+
+    # Save the uploaded image
+    with open(image_path, "wb") as f:
+        f.write(file_bytes)
+
+    return ktp_controller.scan(image_path)
 
 @router.get("/api/file/{file_name}")
 async def get_file(file_name: str):
