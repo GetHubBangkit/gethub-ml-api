@@ -1,0 +1,6 @@
+# .gitignore
+
+# Ignore model.keras file
+/data/sentiment/model.keras
+
+# Add other paths to ignore if necessary
