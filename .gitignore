@@ -1,6 +1,10 @@
 # .gitignore
 
 # Ignore model.keras file
+# terlalu besar hampir 100mb
 /data/sentiment/model.keras
+
+# Ignore __pycache__ folders
+__pycache__/
 
 # Add other paths to ignore if necessary
