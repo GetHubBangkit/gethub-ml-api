@@ -2,7 +2,7 @@
 
 # Ignore model.keras file
 # terlalu besar hampir 100mb
-data/sentiment/model.keras
+# data/sentiment/model.keras
 
 # Ignore __pycache__ folders
 *.pyc

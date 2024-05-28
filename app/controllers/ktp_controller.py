@@ -1,4 +1,3 @@
-import json
 import re
 import cv2
 from pytesseract import pytesseract
@@ -34,7 +33,7 @@ class KTPOCR:
         self.master_process()
 
     def process(self):
-        raw_extracted_text = pytesseract.image_to_string(self.threshed, lang="ind")
+        raw_extracted_text = pytesseract.image_to_string(self.threshed)
         return raw_extracted_text
 
     def word_to_number_converter(self, word):
