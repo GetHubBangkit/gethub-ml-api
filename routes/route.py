@@ -121,6 +121,26 @@ async def post_scan_fraud_project(image_file: UploadFile = File(...)):
 
     return fraud_detection_controller.scan(image_path)
 
+@router.post("/api/scan-ktp-v2", dependencies=[Depends(check_jwt_token)])
+async def post_scan_ktp_v2(image_file: UploadFile = File(...)):
+    # GET FACE IMAGE
+    if not image_file.filename:
+        return {
+            "error_code": 500,
+            "message": "File Gambar wajib di isi!"
+        }
+
+    # Read the image file once
+    file_bytes = await image_file.read()
+    image_path = os.path.join(UPLOAD_FOLDER, image_file.filename)
+
+    # Save the uploaded image
+    with open(image_path, "wb") as f:
+        f.write(file_bytes)
+
+    return fraud_detection_controller.scanKtp(image_path)
+
+
 @router.post("/api/scan-ktp", dependencies=[Depends(check_jwt_token)])
 async def post_scan_fraud_project(image_file: UploadFile = File(...)):
     # GET FACE IMAGE

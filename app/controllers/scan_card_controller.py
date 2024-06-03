@@ -71,7 +71,6 @@ def parser(text, label):
 
 grp_gen = groupgen()
 
-
 def getPredictions(image):
     # extract data using Pytesseract
     tessData = pytesseract.image_to_data(image)
@@ -176,10 +175,4 @@ def getPredictions(image):
 
     return img_bb, entities
 
-async def post(image_file):
-    data = {
-        "sentiment": 0,
-        "accuracy": 0
-    }
-    return show_model(0, "Successfully Get Data", data)
 
