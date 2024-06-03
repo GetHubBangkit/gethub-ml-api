@@ -12,7 +12,7 @@ def fetch_users_from_database(request, profession=None):
     # Mock data for demonstration purposes
     with engine.connect() as conn:
         # Construct the SQL query with LIKE for partial matching of professions
-        query = text("SELECT * FROM users")
+        query = text("SELECT * FROM users WHERE is_visibility = 1")
         # Pass the profession parameter using bindparams
         result = conn.execute(query)
         users = result.fetchall()
@@ -88,19 +88,22 @@ def getlist(request: Request) -> JSONResponse:
     profession = request.query_params.get("profession")
     try:
         if profession is None:
-            return show_model(500, "Profesi Wajib Di isi!", data=None)
+            return show_model(404, "Profesi Wajib Di isi!", data=None)
+
+        if profession == "":
+            return show_model(404, "Profesi Wajib Di isi!", data=None)
 
         # Fetch users from database based on profession
         users = fetch_users_from_database(request, profession)
 
         if not users:
-            return show_model(0, "No users found with the specified profession", data=None)
+            return show_model(404, "No users found with the specified profession", data=None)
 
         # Get recommended users based on profession similarity
         similar_users = create_profession_based_recommender(users, profession)
 
         if not similar_users:
-            return show_model(0, "No similar users found", data=None)
+            return show_model(404, "No similar users found", data=None)
 
         return show_list_model(0, "Successfully Get Data", similar_users, len(similar_users))
     except Exception as e:

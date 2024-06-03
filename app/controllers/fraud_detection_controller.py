@@ -164,3 +164,80 @@ def predict(content: str) -> JSONResponse:
     except Exception as e:
         return show_model(500, str(e), None)
 
+def predictFraudOnly(content: str) -> JSONResponse:
+    try:
+        # Ubah setiap baris menjadi array kata-kata
+        words_array = []
+        lines = content.split()
+        for i in range(0, len(lines), 20):
+            words_array.append(" ".join(lines[i:i + 20]))
+
+        # Load tokenizer
+        try:
+            with open('data/fraud/tokenizer.pickle', 'rb') as handle:
+                tokenizer = pickle.load(handle)
+        except FileNotFoundError:
+            return show_model(500, "Tokenizer file not found", None)
+
+        # Load the model for prediction
+        try:
+            loaded_model = load_model('data/fraud/model.h5')
+        except FileNotFoundError:
+            return show_model(500, "Model file not found", None)
+
+        # Tokenisasi setiap array kata-kata
+        sequences = tokenizer.texts_to_sequences(words_array)
+        padded_sequences = pad_sequences(sequences, maxlen=100)  # Use the same maxlen as in training
+
+        # Prediksi kelas untuk setiap array kata-kata
+        predictions = loaded_model.predict(padded_sequences)
+        predicted_class_indices = [np.argmax(pred) for pred in predictions]
+        class_labels = ['fraud_project_job', 'real_project_job']
+
+        # Hitung akurasi untuk setiap prediksi
+        accuracies = [float(pred[idx]) for pred, idx in zip(predictions, predicted_class_indices)]
+
+        # Gabungkan hasil prediksi, akurasi, dan jumlah fraud/real job
+        results = []
+        total_fraud = 0
+        total_real_job = 0
+
+        for i, (idx, acc) in enumerate(zip(predicted_class_indices, accuracies)):
+            prediction = class_labels[idx]
+            text = words_array[i]
+
+            results.append({
+                "prediction": prediction,
+                "accuracy": acc,
+                "text": text,
+            })
+
+            if prediction == "fraud_project_job":
+                total_fraud += 1
+            elif prediction == "real_project_job":
+                total_real_job += 1
+
+
+        totals = {
+            "total_fraud": total_fraud,
+            "total_real_job": total_real_job,
+        }
+
+        if total_fraud > total_real_job:
+            conclusion_flag = "fraud_project_job"
+        else:
+            conclusion_flag = "real_project_job"
+
+
+        listResult = {
+            "contents": content,
+            "results": results,
+            "totals": totals,
+            "conclusion": {
+                "conclusion_flag": conclusion_flag,
+            },
+        }
+        return show_model(0, "Successfully Predict Data", listResult)
+    except Exception as e:
+        return show_model(500, str(e), None)
+
