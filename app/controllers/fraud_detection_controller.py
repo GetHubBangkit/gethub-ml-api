@@ -164,21 +164,3 @@ def predict(content: str) -> JSONResponse:
     except Exception as e:
         return show_model(500, str(e), None)
 
-
-def scanKtp(image) :
-    ocr_text = pytesseract.image_to_data(image)
-    # convert into dataframe
-    list_of_text = list(map(lambda x: x.split('\t'), ocr_text.split('\n')))
-    df = pd.DataFrame(list_of_text[1:], columns=list_of_text[0])
-    df.dropna(inplace=True)  # drop missing values
-    df['text'] = df['text'].apply(cleanText)
-
-    # convet data into content
-    df_clean = df.query('text != "" ')
-    print(df_clean)
-    content = " ".join([w for w in df_clean['text']])
-    listResult = {
-        "contents": content,
-    }
-
-    return show_model(0, "Successfully Predict Data", listResult)
