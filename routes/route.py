@@ -9,7 +9,7 @@ from starlette.responses import FileResponse
 
 import app.controllers.version_controller as version_controller
 from app.controllers import sentiment_controller, fraud_detection_controller, \
-    scan_card_controller, user_controller, event_controller, ktp_controller
+    scan_card_controller, user_controller, event_controller, ktp_controller, dashboard_controller
 from app.helpers.handler import show_model
 from app.middleware.middleware import check_jwt_token
 import cv2
@@ -29,6 +29,10 @@ router = APIRouter()
 @router.get("/")
 def get_version(request: Request):
     return version_controller.get(request)
+
+@router.get("/dashboard")
+def get_dashboard(request: Request):
+    return dashboard_controller.get_dashboard(request)
 
 @router.post("/api/sentiment-analysis", dependencies=[Depends(check_jwt_token)])
 async def post_sentiment(text_data: TextData):

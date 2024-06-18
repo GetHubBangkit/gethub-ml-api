@@ -12,7 +12,7 @@ def fetch_users_from_database(request, profession=None):
     # Mock data for demonstration purposes
     with engine.connect() as conn:
         # Construct the SQL query with LIKE for partial matching of professions
-        query = text("SELECT * FROM users WHERE is_visibility = 1")
+        query = text("SELECT id, full_name, profession, username, photo FROM users WHERE is_visibility = 1")
         # Pass the profession parameter using bindparams
         result = conn.execute(query)
         users = result.fetchall()
@@ -29,15 +29,14 @@ def fetch_users_from_database(request, profession=None):
         user_dict = dict(zip(columns, user))
 
         # Convert datetime values to strings
-        user_dict["createdAt"] = str(user_dict["createdAt"])
-        user_dict["updatedAt"] = str(user_dict["updatedAt"])
+        # user_dict["createdAt"] = str(user_dict["createdAt"])
+        # user_dict["updatedAt"] = str(user_dict["updatedAt"])
 
         user_dict.pop("role_id", None)
         user_dict.pop("password", None)
         user_dict.pop("phone", None)
         user_dict.pop("web", None)
         user_dict.pop("address", None)
-        user_dict.pop("photo", None)
         user_dict.pop("expired_membership", None)
         user_dict.pop("about", None)
         user_dict.pop("qr_code", None)
