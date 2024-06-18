@@ -1,5 +1,9 @@
 Gethub Machine Learning API
 
+# Download Model Sentiment Analisis
+https://drive.google.com/file/d/1eVwvhv13A2ZZCveooU11aEK7LqrdJU9h/view?usp=sharing
+lalu pindahkan ke folder data/sentiment
+
 # Python
 Anaconda :
 Python 3.9.19
